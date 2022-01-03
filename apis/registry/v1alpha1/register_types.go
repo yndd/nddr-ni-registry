@@ -49,7 +49,7 @@ type NiRegister struct {
 
 // A RegisterSpec defines the desired state of a Register.
 type RegisterSpec struct {
-	Register *NddrNiRegister `json:"register,omitempty"`
+	Register *NiRegister `json:"register,omitempty"`
 }
 
 // A RegisterStatus represents the observed state of a Register.

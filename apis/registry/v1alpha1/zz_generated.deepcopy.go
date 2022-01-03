@@ -280,7 +280,7 @@ func (in *RegisterSpec) DeepCopyInto(out *RegisterSpec) {
 	*out = *in
 	if in.Register != nil {
 		in, out := &in.Register, &out.Register
-		*out = new(NddrNiRegister)
+		*out = new(NiRegister)
 		(*in).DeepCopyInto(*out)
 	}
 }
