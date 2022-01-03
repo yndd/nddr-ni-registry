@@ -1,0 +1,8 @@
+
+apiVersion: meta.pkg.ndd.yndd.io/v1
+kind: Intent
+metadata:
+  name: nddr-ni-registry
+spec:
+  controller:
+    image: yndd/nddr-ni-registry-controller:latest

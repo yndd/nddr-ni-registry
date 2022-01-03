@@ -1,0 +1,21 @@
+apiVersion: ni.nddr.yndd.io/v1alpha1
+kind: Register
+metadata:
+  name: nokia.default.register1
+  namespace: default
+spec:
+  register:
+    selector:
+    - key: name
+      value: default
+    source-tag:
+    - key: node
+      value: leaf1
+    - key: network-instance
+      value: default
+    - key: vpc
+      value: default
+    - key: tenant
+      value: default
+
+      
