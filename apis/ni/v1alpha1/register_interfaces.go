@@ -18,6 +18,7 @@ package v1alpha1
 import (
 	"fmt"
 	"reflect"
+	"strings"
 
 	nddv1 "github.com/yndd/ndd-runtime/apis/common/v1"
 	"github.com/yndd/nddo-runtime/pkg/odr"
@@ -83,7 +84,11 @@ func (x *Register) GetDeploymentName() string {
 }
 
 func (x *Register) GetRegistryName() string {
-	return *x.Spec.RegistryName
+	split := strings.Split(x.GetName(), ".")
+	if len(split) > 1 {
+		return split[0]
+	}
+	return ""
 }
 
 func (n *Register) GetSourceTag() map[string]string {

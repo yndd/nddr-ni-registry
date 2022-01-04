@@ -40,7 +40,7 @@ func (r *server) ResourceRequest(ctx context.Context, req *resourcepb.Request) (
 	log := r.log.WithValues("Request", req)
 
 	namespace := req.GetNamespace()
-	registryName := req.GetRegistryName()
+	registryName := strings.Split(req.GetResourceName(), ".")[0]
 
 	registerInfo := &handler.RegisterInfo{
 		Namespace:    namespace,
@@ -79,7 +79,7 @@ func (r *server) ResourceRelease(ctx context.Context, req *resourcepb.Request) (
 	log.Debug("ResourceDeAlloc...")
 
 	namespace := req.GetNamespace()
-	registryName := req.GetRegistryName()
+	registryName := strings.Split(req.GetResourceName(), ".")[0]
 
 	registerInfo := &handler.RegisterInfo{
 		Namespace:    namespace,

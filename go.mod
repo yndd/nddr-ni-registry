@@ -7,7 +7,7 @@ require (
 	github.com/spf13/cobra v1.2.1
 	github.com/yndd/ndd-core v0.1.6
 	github.com/yndd/ndd-runtime v0.1.6
-	github.com/yndd/nddo-grpc v0.0.12
+	github.com/yndd/nddo-grpc v0.0.13
 	github.com/yndd/nddo-runtime v0.0.39
 	github.com/yndd/nddr-organization v0.0.11
 	google.golang.org/grpc v1.42.0
