@@ -27,7 +27,7 @@ import (
 
 	//ndrv1 "github.com/yndd/ndd-core/apis/dvr/v1"
 	//nipoolv1alpha1 "github.com/yndd/nddr-ni-pool/apis/nipool/v1alpha1"
-	niregv1alpha1 "github.com/yndd/nddr-ni-registry/apis/registry/v1alpha1"
+	niregv1alpha1 "github.com/yndd/nddr-ni-registry/apis/ni/v1alpha1"
 	//apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	//+kubebuilder:scaffold:imports
 )

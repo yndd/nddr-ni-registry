@@ -51,6 +51,7 @@ type Rg interface {
 	resource.Conditioned
 
 	GetOrganizationName() string
+	GetDeploymentName() string
 	GetRegistryName() string
 	GetAllocationStrategy() string
 	GetSize() uint32
@@ -58,8 +59,9 @@ type Rg interface {
 	GetAllocatedNis() []*string
 	InitializeResource() error
 	SetStatus(uint32, []*string)
-	SetOrganizationName(s string)
-	SetRegistryName(s string)
+	SetOrganizationName(string)
+	SetDeploymentName(string)
+	SetRegistryName(string)
 }
 
 // GetCondition of this Network Node.
@@ -73,19 +75,15 @@ func (x *Registry) SetConditions(c ...nddv1.Condition) {
 }
 
 func (x *Registry) GetOrganizationName() string {
-	odr, err := odr.GetOdrRegistryInfo(x.GetName())
-	if err != nil {
-		return ""
-	}
-	return odr.OrganizationName
+	return odr.GetOrganizationName(x.GetNamespace())
+}
+
+func (x *Registry) GetDeploymentName() string {
+	return odr.GetDeploymentName(x.GetNamespace())
 }
 
 func (x *Registry) GetRegistryName() string {
-	odr, err := odr.GetOdrRegistryInfo(x.GetName())
-	if err != nil {
-		return ""
-	}
-	return odr.RegistryName
+	return x.GetName()
 }
 
 func (n *Registry) GetAllocationStrategy() string {
@@ -146,6 +144,10 @@ func (n *Registry) SetStatus(allocated uint32, used []*string) {
 
 func (x *Registry) SetOrganizationName(s string) {
 	x.Status.OrganizationName = &s
+}
+
+func (x *Registry) SetDeploymentName(s string) {
+	x.Status.DeploymentName = &s
 }
 
 func (x *Registry) SetRegistryName(s string) {

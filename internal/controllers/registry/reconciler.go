@@ -26,7 +26,7 @@ import (
 	"github.com/yndd/ndd-runtime/pkg/logging"
 	"github.com/yndd/nddo-runtime/pkg/reconciler/managed"
 	"github.com/yndd/nddo-runtime/pkg/resource"
-	niregv1alpha1 "github.com/yndd/nddr-ni-registry/apis/registry/v1alpha1"
+	niregv1alpha1 "github.com/yndd/nddr-ni-registry/apis/ni/v1alpha1"
 	"github.com/yndd/nddr-ni-registry/internal/handler"
 	"github.com/yndd/nddr-ni-registry/internal/shared"
 	"github.com/yndd/nddr-organization/pkg/registry"
@@ -194,6 +194,7 @@ func (r *application) handleAppLogic(ctx context.Context, cr niregv1alpha1.Rg) (
 	cr.SetStatus(allocated, used)
 
 	cr.SetOrganizationName(cr.GetOrganizationName())
+	cr.SetDeploymentName(cr.GetDeploymentName())
 	cr.SetRegistryName(cr.GetRegistryName())
 
 	// trick to use speedy for fast updates

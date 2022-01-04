@@ -7,7 +7,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/yndd/ndd-runtime/pkg/logging"
-	niregv1alpha1 "github.com/yndd/nddr-ni-registry/apis/registry/v1alpha1"
+	niregv1alpha1 "github.com/yndd/nddr-ni-registry/apis/ni/v1alpha1"
 	"github.com/yndd/nddr-ni-registry/internal/hash"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"

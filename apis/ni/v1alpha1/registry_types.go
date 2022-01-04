@@ -51,6 +51,7 @@ type RegistrySpec struct {
 type RegistryStatus struct {
 	nddv1.ConditionedStatus `json:",inline"`
 	OrganizationName        *string               `json:"organization-name,omitempty"`
+	DeploymentName          *string               `json:"deployment-name,omitempty"`
 	RegistryName            *string               `json:"registry-name,omitempty"`
 	Registry                *NddrRegistryRegistry `json:"registry,omitempty"`
 }
@@ -62,6 +63,7 @@ type RegistryStatus struct {
 // +kubebuilder:printcolumn:name="SYNC",type="string",JSONPath=".status.conditions[?(@.kind=='Synced')].status"
 // +kubebuilder:printcolumn:name="STATUS",type="string",JSONPath=".status.conditions[?(@.kind=='Ready')].status"
 // +kubebuilder:printcolumn:name="ORG",type="string",JSONPath=".status.organization-name"
+// +kubebuilder:printcolumn:name="DEPL",type="string",JSONPath=".status.deployment-name"
 // +kubebuilder:printcolumn:name="REGISTRY",type="string",JSONPath=".status.registry-name"
 // +kubebuilder:printcolumn:name="ALLOCATED",type="string",JSONPath=".status.registry.state.allocated",description="allocated network-instances"
 // +kubebuilder:printcolumn:name="AVAILABLE",type="string",JSONPath=".status.registry.state.available",description="available network-instances"

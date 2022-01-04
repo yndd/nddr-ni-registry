@@ -22,7 +22,7 @@ import (
 
 	//ndddvrv1 "github.com/yndd/ndd-core/apis/dvr/v1"
 	"github.com/yndd/ndd-runtime/pkg/logging"
-	niregv1alpha1 "github.com/yndd/nddr-ni-registry/apis/registry/v1alpha1"
+	niregv1alpha1 "github.com/yndd/nddr-ni-registry/apis/ni/v1alpha1"
 	"github.com/yndd/nddr-ni-registry/internal/handler"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"

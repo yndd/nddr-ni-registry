@@ -23,8 +23,7 @@ import (
 	"time"
 
 	"github.com/yndd/nddo-grpc/resource/resourcepb"
-	"github.com/yndd/nddo-runtime/pkg/odr"
-	niregv1alpha1 "github.com/yndd/nddr-ni-registry/apis/registry/v1alpha1"
+	niregv1alpha1 "github.com/yndd/nddr-ni-registry/apis/ni/v1alpha1"
 	"github.com/yndd/nddr-ni-registry/internal/handler"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/event"
@@ -37,22 +36,18 @@ func (r *server) ResourceGet(ctx context.Context, req *resourcepb.Request) (*res
 	return &resourcepb.Reply{Ready: true}, nil
 }
 
-func (r *server) ResourceAlloc(ctx context.Context, req *resourcepb.Request) (*resourcepb.Reply, error) {
+func (r *server) ResourceRequest(ctx context.Context, req *resourcepb.Request) (*resourcepb.Reply, error) {
 	log := r.log.WithValues("Request", req)
 
 	namespace := req.GetNamespace()
-	//registryName := strings.Join([]string{getOrganizationName(req.ResourceName), getRegistryName(req.ResourceName)}, ".")
-	odr, err := odr.GetOdrRegisterOrgFixedInfo(req.ResourceName)
-	if err != nil {
-		return nil, err
-	}
+	registryName := req.GetRegistryName()
 
 	registerInfo := &handler.RegisterInfo{
-		Namespace:    req.GetNamespace(),
-		RegistryName: odr.FullRegistryName,
-		CrName:       strings.Join([]string{namespace, odr.FullRegistryName}, "."),
-		Selector:     req.Alloc.Selector,
-		SourceTag:    req.Alloc.SourceTag,
+		Namespace:    namespace,
+		RegistryName: registryName,
+		CrName:       strings.Join([]string{namespace, registryName}, "."),
+		Selector:     req.Request.Selector,
+		SourceTag:    req.Request.SourceTag,
 	}
 
 	log.Debug("resource alloc", "registerInfo", registerInfo)
@@ -65,7 +60,7 @@ func (r *server) ResourceAlloc(ctx context.Context, req *resourcepb.Request) (*r
 	// send a generic event to trigger a registry reconciliation based on a new allocation
 	r.eventChs[niregv1alpha1.RegistryGroupKind] <- event.GenericEvent{
 		Object: &niregv1alpha1.Register{
-			ObjectMeta: metav1.ObjectMeta{Name: req.ResourceName, Namespace: namespace},
+			ObjectMeta: metav1.ObjectMeta{Name: req.GetResourceName(), Namespace: namespace},
 		},
 	}
 
@@ -79,23 +74,19 @@ func (r *server) ResourceAlloc(ctx context.Context, req *resourcepb.Request) (*r
 	}, nil
 }
 
-func (r *server) ResourceDeAlloc(ctx context.Context, req *resourcepb.Request) (*resourcepb.Reply, error) {
+func (r *server) ResourceRelease(ctx context.Context, req *resourcepb.Request) (*resourcepb.Reply, error) {
 	log := r.log.WithValues("Request", req)
 	log.Debug("ResourceDeAlloc...")
 
 	namespace := req.GetNamespace()
-	//registryName := strings.Join([]string{getOrganizationName(req.ResourceName), getRegistryName(req.ResourceName)}, ".")
-	odr, err := odr.GetOdrRegisterOrgFixedInfo(req.ResourceName)
-	if err != nil {
-		return nil, err
-	}
+	registryName := req.GetRegistryName()
 
 	registerInfo := &handler.RegisterInfo{
-		Namespace:    req.GetNamespace(),
-		RegistryName: odr.FullRegistryName,
-		CrName:       strings.Join([]string{namespace, odr.FullRegistryName}, "."),
-		Selector:     req.Alloc.Selector,
-		SourceTag:    req.Alloc.SourceTag,
+		Namespace:    namespace,
+		RegistryName: registryName,
+		CrName:       strings.Join([]string{namespace, registryName}, "."),
+		Selector:     req.Request.Selector,
+		SourceTag:    req.Request.SourceTag,
 	}
 
 	log.Debug("resource dealloc", "registerInfo", registerInfo)
@@ -107,27 +98,9 @@ func (r *server) ResourceDeAlloc(ctx context.Context, req *resourcepb.Request) (
 	// send a generic event to trigger a registry reconciliation based on a new DeAllocation
 	r.eventChs[niregv1alpha1.RegistryGroupKind] <- event.GenericEvent{
 		Object: &niregv1alpha1.Register{
-			ObjectMeta: metav1.ObjectMeta{Name: req.ResourceName, Namespace: namespace},
+			ObjectMeta: metav1.ObjectMeta{Name: req.GetResourceName(), Namespace: namespace},
 		},
 	}
 
 	return &resourcepb.Reply{Ready: true}, nil
 }
-
-/*
-func getOrganizationName(resourceName string) string {
-	split := strings.Split(resourceName, ".")
-	if len(split) >= 2 {
-		return split[0]
-	}
-	return ""
-}
-
-func getRegistryName(resourceName string) string {
-	split := strings.Split(resourceName, ".")
-	if len(split) >= 2 {
-		return split[1]
-	}
-	return ""
-}
-*/

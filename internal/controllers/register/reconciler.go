@@ -24,10 +24,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/yndd/ndd-runtime/pkg/event"
 	"github.com/yndd/ndd-runtime/pkg/logging"
-	"github.com/yndd/nddo-runtime/pkg/odr"
 	"github.com/yndd/nddo-runtime/pkg/reconciler/managed"
 	"github.com/yndd/nddo-runtime/pkg/resource"
-	niregv1alpha1 "github.com/yndd/nddr-ni-registry/apis/registry/v1alpha1"
+	niregv1alpha1 "github.com/yndd/nddr-ni-registry/apis/ni/v1alpha1"
 	"github.com/yndd/nddr-ni-registry/internal/handler"
 	"github.com/yndd/nddr-ni-registry/internal/shared"
 	"github.com/yndd/nddr-organization/pkg/registry"
@@ -101,12 +100,7 @@ type application struct {
 }
 
 func getCrName(cr niregv1alpha1.Rr) string {
-	odr, err := odr.GetOdrRegisterOrgFixedInfo(cr.GetName())
-	if err != nil {
-		return ""
-	}
-
-	return strings.Join([]string{cr.GetNamespace(), odr.FullRegistryName}, ".")
+	return strings.Join([]string{cr.GetNamespace(), cr.GetRegistryName()}, ".")
 }
 
 func (r *application) Initialize(ctx context.Context, mg resource.Managed) error {
@@ -153,14 +147,10 @@ func (r *application) Delete(ctx context.Context, mg resource.Managed) (bool, er
 	log.Debug("handleDelete")
 
 	crName := getCrName(cr)
-	odr, err := odr.GetOdrRegisterOrgFixedInfo(cr.GetName())
-	if err != nil {
-		return true, err
-	}
 
 	registerInfo := &handler.RegisterInfo{
 		Namespace:    cr.GetNamespace(),
-		RegistryName: odr.FullRegistryName,
+		RegistryName: cr.GetRegistryName(),
 		CrName:       crName,
 		Selector:     cr.GetSelector(),
 		SourceTag:    cr.GetSourceTag(),
@@ -184,14 +174,10 @@ func (r *application) handleAppLogic(ctx context.Context, cr niregv1alpha1.Rr) (
 	log.Debug("handleAppLogic")
 
 	crName := getCrName(cr)
-	odr, err := odr.GetOdrRegisterOrgFixedInfo(cr.GetName())
-	if err != nil {
-		return nil, err
-	}
 
 	registerInfo := &handler.RegisterInfo{
 		Namespace:    cr.GetNamespace(),
-		RegistryName: odr.FullRegistryName,
+		RegistryName: cr.GetRegistryName(),
 		CrName:       crName,
 		Selector:     cr.GetSelector(),
 		SourceTag:    cr.GetSourceTag(),
@@ -207,6 +193,7 @@ func (r *application) handleAppLogic(ctx context.Context, cr niregv1alpha1.Rr) (
 	cr.SetNi(*index)
 
 	cr.SetOrganizationName(cr.GetOrganizationName())
+	cr.SetDeploymentName(cr.GetDeploymentName())
 	cr.SetRegistryName(cr.GetRegistryName())
 
 	return nil, nil

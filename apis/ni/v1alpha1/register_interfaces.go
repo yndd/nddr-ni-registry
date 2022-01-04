@@ -53,12 +53,14 @@ type Rr interface {
 	GetCondition(ct nddv1.ConditionKind) nddv1.Condition
 	SetConditions(c ...nddv1.Condition)
 	GetOrganizationName() string
+	GetDeploymentName() string
 	GetRegistryName() string
 	GetSourceTag() map[string]string
 	GetSelector() map[string]string
 	SetNi(uint32)
 	HasNi() (uint32, bool)
 	SetOrganizationName(s string)
+	SetDeploymentName(s string)
 	SetRegistryName(s string)
 }
 
@@ -73,19 +75,15 @@ func (x *Register) SetConditions(c ...nddv1.Condition) {
 }
 
 func (x *Register) GetOrganizationName() string {
-	odr, err := odr.GetOdrRegisterInfo(x.GetName())
-	if err != nil {
-		return ""
-	}
-	return odr.OrganizationName
+	return odr.GetOrganizationName(x.GetNamespace())
+}
+
+func (x *Register) GetDeploymentName() string {
+	return odr.GetDeploymentName(x.GetNamespace())
 }
 
 func (x *Register) GetRegistryName() string {
-	odr, err := odr.GetOdrRegisterInfo(x.GetName())
-	if err != nil {
-		return ""
-	}
-	return odr.RegistryName
+	return *x.Spec.RegistryName
 }
 
 func (n *Register) GetSourceTag() map[string]string {
@@ -131,6 +129,10 @@ func (n *Register) HasNi() (uint32, bool) {
 
 func (x *Register) SetOrganizationName(s string) {
 	x.Status.OrganizationName = &s
+}
+
+func (x *Register) SetDeploymentName(s string) {
+	x.Status.DeploymentName = &s
 }
 
 func (x *Register) SetRegistryName(s string) {
