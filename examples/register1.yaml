@@ -1,9 +1,10 @@
 apiVersion: ni.nddr.yndd.io/v1alpha1
 kind: Register
 metadata:
-  name: nokia.default.register1
+  name: register1
   namespace: default
 spec:
+  registry-name: nokia
   register:
     selector:
     - key: name

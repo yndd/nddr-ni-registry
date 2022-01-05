@@ -71,7 +71,7 @@ func WithClient(c client.Client) Option {
 }
 
 /*
-func WithNewResourceFn(f func() niregv1alpha1.Rg) Option {
+func WithNewResourceFn(f func() niv1alpha1.Rg) Option {
 	return func(r Server) {
 		r.WithNewResourceFn(f)
 	}
@@ -89,7 +89,7 @@ type Server interface {
 	WithConfig(cfg Config)
 	WithEventChannels(map[string]chan event.GenericEvent)
 	WithClient(a client.Client)
-	//WithNewResourceFn(f func() niregv1alpha1.Rg)
+	//WithNewResourceFn(f func() niv1alpha1.Rg)
 	WithHandler(handler.Handler)
 	Run(ctx context.Context) error
 }

@@ -18,11 +18,10 @@ package registry
 
 import (
 	"context"
-	"strings"
 
 	//ndddvrv1 "github.com/yndd/ndd-core/apis/dvr/v1"
 	"github.com/yndd/ndd-runtime/pkg/logging"
-	niregv1alpha1 "github.com/yndd/nddr-ni-registry/apis/ni/v1alpha1"
+	niv1alpha1 "github.com/yndd/nddr-ni-registry/apis/ni/v1alpha1"
 	"github.com/yndd/nddr-ni-registry/internal/handler"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -44,7 +43,7 @@ type EnqueueRequestForAllRegisters struct {
 	handler handler.Handler
 	//mutex  sync.Mutex
 
-	newRegistryList func() niregv1alpha1.RgList
+	newRegistryList func() niv1alpha1.RgList
 }
 
 // Create enqueues a request for all infrastructures which pertains to the topology.
@@ -69,7 +68,7 @@ func (e *EnqueueRequestForAllRegisters) Generic(evt event.GenericEvent, q workqu
 }
 
 func (e *EnqueueRequestForAllRegisters) add(obj runtime.Object, queue adder) {
-	dd, ok := obj.(*niregv1alpha1.Register)
+	dd, ok := obj.(*niv1alpha1.Register)
 	if !ok {
 		return
 	}
@@ -82,16 +81,14 @@ func (e *EnqueueRequestForAllRegisters) add(obj runtime.Object, queue adder) {
 	}
 
 	for _, registry := range d.GetRegistries() {
-
-		orgordeploymentName := strings.Join(strings.Split(registry.GetName(), ".")[:len(strings.Split(registry.GetName(), "."))-1], ".")
-
+		log.Debug("watch register event", "name", dd.GetName(), "namespace", dd.GetNamespace())
 		// only enqueue if the org and/or deployment name match
-		if strings.Contains(dd.GetName(), orgordeploymentName) {
+		if registry.GetNamespace() == dd.GetNamespace() {
 			crName := getCrName(registry)
 			e.handler.ResetSpeedy(crName)
 
 			queue.Add(reconcile.Request{NamespacedName: types.NamespacedName{
-				Namespace: dd.GetNamespace(),
+				Namespace: registry.GetNamespace(),
 				Name:      registry.GetName()}})
 		}
 	}

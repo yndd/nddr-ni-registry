@@ -1,19 +1,25 @@
 apiVersion: ni.nddr.yndd.io/v1alpha1
 kind: Register
 metadata:
-  name: nokia.default.default.leaf2
+  name: register1
   namespace: default
 spec:
+  registry-name: nokia
+  oda:
+  - key: organization
+    value: nokia
   register:
     selector:
     - key: name
       value: default
     source-tag:
     - key: node
-      value: leaf2
+      value: leaf1
     - key: network-instance
       value: default
     - key: vpc
+      value: default
+    - key: tenant
       value: default
 
       

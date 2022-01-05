@@ -18,10 +18,8 @@ package v1alpha1
 import (
 	"fmt"
 	"reflect"
-	"strings"
 
 	nddv1 "github.com/yndd/ndd-runtime/apis/common/v1"
-	"github.com/yndd/nddo-runtime/pkg/odr"
 	"github.com/yndd/nddo-runtime/pkg/resource"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -53,15 +51,17 @@ type Rr interface {
 
 	GetCondition(ct nddv1.ConditionKind) nddv1.Condition
 	SetConditions(c ...nddv1.Condition)
-	GetOrganizationName() string
-	GetDeploymentName() string
+	GetOrganization() string
+	GetDeployment() string
+	GetAvailabilityZone() string
 	GetRegistryName() string
 	GetSourceTag() map[string]string
 	GetSelector() map[string]string
 	SetNi(uint32)
 	HasNi() (uint32, bool)
-	SetOrganizationName(s string)
-	SetDeploymentName(s string)
+	SetOrganization(s string)
+	SetDeployment(s string)
+	SetAvailabilityZone(s string)
 	SetRegistryName(s string)
 }
 
@@ -75,20 +75,23 @@ func (x *Register) SetConditions(c ...nddv1.Condition) {
 	x.Status.SetConditions(c...)
 }
 
-func (x *Register) GetOrganizationName() string {
-	return odr.GetOrganizationName(x.GetNamespace())
+func (x *Register) GetOrganization() string {
+	return x.Spec.GetOrganization()
 }
 
-func (x *Register) GetDeploymentName() string {
-	return odr.GetDeploymentName(x.GetNamespace())
+func (x *Register) GetDeployment() string {
+	return x.Spec.GetDeployment()
+}
+
+func (x *Register) GetAvailabilityZone() string {
+	return x.Spec.GetAvailabilityZone()
 }
 
 func (x *Register) GetRegistryName() string {
-	split := strings.Split(x.GetName(), ".")
-	if len(split) > 1 {
-		return split[0]
+	if reflect.ValueOf(x.Spec.RegistryName).IsZero() {
+		return ""
 	}
-	return ""
+	return *x.Spec.RegistryName
 }
 
 func (n *Register) GetSourceTag() map[string]string {
@@ -132,12 +135,16 @@ func (n *Register) HasNi() (uint32, bool) {
 
 }
 
-func (x *Register) SetOrganizationName(s string) {
-	x.Status.OrganizationName = &s
+func (x *Register) SetOrganization(s string) {
+	x.Status.SetOrganization(s)
 }
 
-func (x *Register) SetDeploymentName(s string) {
-	x.Status.DeploymentName = &s
+func (x *Register) SetDeployment(s string) {
+	x.Status.SetDeployment(s)
+}
+
+func (x *Register) SetAvailabilityZone(s string) {
+	x.Status.SetAvailabilityZone(s)
 }
 
 func (x *Register) SetRegistryName(s string) {

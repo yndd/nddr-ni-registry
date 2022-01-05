@@ -23,7 +23,7 @@ import (
 	"time"
 
 	"github.com/yndd/nddo-grpc/resource/resourcepb"
-	niregv1alpha1 "github.com/yndd/nddr-ni-registry/apis/ni/v1alpha1"
+	niv1alpha1 "github.com/yndd/nddr-ni-registry/apis/ni/v1alpha1"
 	"github.com/yndd/nddr-ni-registry/internal/handler"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/event"
@@ -39,13 +39,11 @@ func (r *server) ResourceGet(ctx context.Context, req *resourcepb.Request) (*res
 func (r *server) ResourceRequest(ctx context.Context, req *resourcepb.Request) (*resourcepb.Reply, error) {
 	log := r.log.WithValues("Request", req)
 
-	namespace := req.GetNamespace()
-	registryName := strings.Split(req.GetResourceName(), ".")[0]
-
 	registerInfo := &handler.RegisterInfo{
-		Namespace:    namespace,
-		RegistryName: registryName,
-		CrName:       strings.Join([]string{namespace, registryName}, "."),
+		Namespace:    req.GetNamespace(),
+		RegistryName: req.GetRegistryName(),
+		Name:         req.GetName(),
+		CrName:       strings.Join([]string{req.GetNamespace(), req.GetRegistryName()}, "."),
 		Selector:     req.Request.Selector,
 		SourceTag:    req.Request.SourceTag,
 	}
@@ -58,9 +56,9 @@ func (r *server) ResourceRequest(ctx context.Context, req *resourcepb.Request) (
 	}
 
 	// send a generic event to trigger a registry reconciliation based on a new allocation
-	r.eventChs[niregv1alpha1.RegistryGroupKind] <- event.GenericEvent{
-		Object: &niregv1alpha1.Register{
-			ObjectMeta: metav1.ObjectMeta{Name: req.GetResourceName(), Namespace: namespace},
+	r.eventChs[niv1alpha1.RegistryGroupKind] <- event.GenericEvent{
+		Object: &niv1alpha1.Register{
+			ObjectMeta: metav1.ObjectMeta{Name: req.GetName(), Namespace: req.GetNamespace()},
 		},
 	}
 
@@ -78,13 +76,11 @@ func (r *server) ResourceRelease(ctx context.Context, req *resourcepb.Request) (
 	log := r.log.WithValues("Request", req)
 	log.Debug("ResourceDeAlloc...")
 
-	namespace := req.GetNamespace()
-	registryName := strings.Split(req.GetResourceName(), ".")[0]
-
 	registerInfo := &handler.RegisterInfo{
-		Namespace:    namespace,
-		RegistryName: registryName,
-		CrName:       strings.Join([]string{namespace, registryName}, "."),
+		Namespace:    req.GetNamespace(),
+		RegistryName: req.GetRegistryName(),
+		CrName:       strings.Join([]string{req.GetNamespace(), req.GetRegistryName()}, "."),
+		Name:         req.GetName(),
 		Selector:     req.Request.Selector,
 		SourceTag:    req.Request.SourceTag,
 	}
@@ -96,9 +92,9 @@ func (r *server) ResourceRelease(ctx context.Context, req *resourcepb.Request) (
 	}
 
 	// send a generic event to trigger a registry reconciliation based on a new DeAllocation
-	r.eventChs[niregv1alpha1.RegistryGroupKind] <- event.GenericEvent{
-		Object: &niregv1alpha1.Register{
-			ObjectMeta: metav1.ObjectMeta{Name: req.GetResourceName(), Namespace: namespace},
+	r.eventChs[niv1alpha1.RegistryGroupKind] <- event.GenericEvent{
+		Object: &niv1alpha1.Register{
+			ObjectMeta: metav1.ObjectMeta{Name: req.GetName(), Namespace: req.GetNamespace()},
 		},
 	}
 

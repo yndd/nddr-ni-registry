@@ -26,7 +26,7 @@ import (
 	"github.com/yndd/ndd-runtime/pkg/logging"
 	"github.com/yndd/nddo-runtime/pkg/reconciler/managed"
 	"github.com/yndd/nddo-runtime/pkg/resource"
-	niregv1alpha1 "github.com/yndd/nddr-ni-registry/apis/ni/v1alpha1"
+	niv1alpha1 "github.com/yndd/nddr-ni-registry/apis/ni/v1alpha1"
 	"github.com/yndd/nddr-ni-registry/internal/handler"
 	"github.com/yndd/nddr-ni-registry/internal/shared"
 	"github.com/yndd/nddr-organization/pkg/registry"
@@ -45,16 +45,16 @@ const (
 
 // Setup adds a controller that reconciles infra.
 func Setup(mgr ctrl.Manager, o controller.Options, nddcopts *shared.NddControllerOptions) error {
-	name := "nddo/" + strings.ToLower(niregv1alpha1.RegisterGroupKind)
-	rgfn := func() niregv1alpha1.Rg { return &niregv1alpha1.Registry{} }
-	//rglfn := func() niregv1alpha1.RgList { return &niregv1alpha1.RegistryList{} }
-	//rrfn := func() niregv1alpha1.Rr { return &niregv1alpha1.Register{} }
-	//rrlfn := func() niregv1alpha1.RrList { return &niregv1alpha1.RegisterList{} }
+	name := "nddo/" + strings.ToLower(niv1alpha1.RegisterGroupKind)
+	rgfn := func() niv1alpha1.Rg { return &niv1alpha1.Registry{} }
+	//rglfn := func() niv1alpha1.RgList { return &niv1alpha1.RegistryList{} }
+	//rrfn := func() niv1alpha1.Rr { return &niv1alpha1.Register{} }
+	//rrlfn := func() niv1alpha1.RrList { return &niv1alpha1.RegisterList{} }
 
 	//speedy := make(map[string]int)
 
 	r := managed.NewReconciler(mgr,
-		resource.ManagedKind(niregv1alpha1.RegisterGroupVersionKind),
+		resource.ManagedKind(niv1alpha1.RegisterGroupVersionKind),
 		managed.WithLogger(nddcopts.Logger.WithValues("controller", name)),
 		managed.WithApplication(&application{
 			client: resource.ClientApplicator{
@@ -76,8 +76,8 @@ func Setup(mgr ctrl.Manager, o controller.Options, nddcopts *shared.NddControlle
 	return ctrl.NewControllerManagedBy(mgr).
 		Named(name).
 		WithOptions(o).
-		For(&niregv1alpha1.Register{}).
-		Owns(&niregv1alpha1.Register{}).
+		For(&niv1alpha1.Register{}).
+		Owns(&niv1alpha1.Register{}).
 		WithEventFilter(resource.IgnoreUpdateWithoutGenerationChangePredicate()).
 		WithEventFilter(resource.IgnoreUpdateWithoutGenerationChangePredicate()).
 		Complete(r)
@@ -88,7 +88,7 @@ type application struct {
 	client resource.ClientApplicator
 	log    logging.Logger
 
-	newRegistry func() niregv1alpha1.Rg
+	newRegistry func() niv1alpha1.Rg
 
 	//pool    map[string]hash.HashTable
 	handler handler.Handler
@@ -99,7 +99,7 @@ type application struct {
 	//speedyMutex sync.Mutex
 }
 
-func getCrName(cr niregv1alpha1.Rr) string {
+func getCrName(cr niv1alpha1.Rr) string {
 	return strings.Join([]string{cr.GetNamespace(), cr.GetRegistryName()}, ".")
 }
 
@@ -108,7 +108,7 @@ func (r *application) Initialize(ctx context.Context, mg resource.Managed) error
 }
 
 func (r *application) Update(ctx context.Context, mg resource.Managed) (map[string]string, error) {
-	cr, ok := mg.(*niregv1alpha1.Register)
+	cr, ok := mg.(*niv1alpha1.Register)
 	if !ok {
 		return nil, errors.New(errUnexpectedResource)
 	}
@@ -117,14 +117,14 @@ func (r *application) Update(ctx context.Context, mg resource.Managed) (map[stri
 }
 
 func (r *application) FinalUpdate(ctx context.Context, mg resource.Managed) {
-	//cr, _ := mg.(*niregv1alpha1.Registry)
+	//cr, _ := mg.(*niv1alpha1.Registry)
 	//crName := getCrName(cr)
 	//r.infra[crName].PrintNodes(crName)
 }
 
 func (r *application) Timeout(ctx context.Context, mg resource.Managed) time.Duration {
 	/*
-		cr, _ := mg.(*niregv1alpha1.Registry)
+		cr, _ := mg.(*niv1alpha1.Registry)
 		crName := getCrName(cr)
 		r.speedyMutex.Lock()
 		speedy := r.speedy[crName]
@@ -139,7 +139,7 @@ func (r *application) Timeout(ctx context.Context, mg resource.Managed) time.Dur
 }
 
 func (r *application) Delete(ctx context.Context, mg resource.Managed) (bool, error) {
-	cr, ok := mg.(*niregv1alpha1.Register)
+	cr, ok := mg.(*niv1alpha1.Register)
 	if !ok {
 		return true, errors.New(errUnexpectedResource)
 	}
@@ -152,6 +152,7 @@ func (r *application) Delete(ctx context.Context, mg resource.Managed) (bool, er
 		Namespace:    cr.GetNamespace(),
 		RegistryName: cr.GetRegistryName(),
 		CrName:       crName,
+		Name:         cr.GetName(),
 		Selector:     cr.GetSelector(),
 		SourceTag:    cr.GetSourceTag(),
 	}
@@ -169,16 +170,15 @@ func (r *application) FinalDelete(ctx context.Context, mg resource.Managed) {
 
 }
 
-func (r *application) handleAppLogic(ctx context.Context, cr niregv1alpha1.Rr) (map[string]string, error) {
+func (r *application) handleAppLogic(ctx context.Context, cr niv1alpha1.Rr) (map[string]string, error) {
 	log := r.log.WithValues("function", "handleAppLogic", "crname", cr.GetName())
 	log.Debug("handleAppLogic")
-
-	crName := getCrName(cr)
 
 	registerInfo := &handler.RegisterInfo{
 		Namespace:    cr.GetNamespace(),
 		RegistryName: cr.GetRegistryName(),
-		CrName:       crName,
+		Name:         cr.GetName(),
+		CrName:       getCrName(cr),
 		Selector:     cr.GetSelector(),
 		SourceTag:    cr.GetSourceTag(),
 	}
@@ -192,8 +192,9 @@ func (r *application) handleAppLogic(ctx context.Context, cr niregv1alpha1.Rr) (
 
 	cr.SetNi(*index)
 
-	cr.SetOrganizationName(cr.GetOrganizationName())
-	cr.SetDeploymentName(cr.GetDeploymentName())
+	cr.SetOrganization(cr.GetOrganization())
+	cr.SetDeployment(cr.GetDeployment())
+	cr.SetAvailabilityZone(cr.GetAvailabilityZone())
 	cr.SetRegistryName(cr.GetRegistryName())
 
 	return nil, nil

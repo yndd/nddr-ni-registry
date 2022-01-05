@@ -20,6 +20,7 @@ import (
 	"reflect"
 
 	nddv1 "github.com/yndd/ndd-runtime/apis/common/v1"
+	nddov1 "github.com/yndd/nddo-runtime/apis/common/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
@@ -44,14 +45,14 @@ type RegistryRegistry struct {
 
 // A RegistrySpec defines the desired state of a Registry.
 type RegistrySpec struct {
-	Registry *RegistryRegistry `json:"registry,omitempty"`
+	nddov1.OdaInfo `json:",inline"`
+	Registry       *RegistryRegistry `json:"registry,omitempty"`
 }
 
 // A RegistryStatus represents the observed state of a Registry.
 type RegistryStatus struct {
 	nddv1.ConditionedStatus `json:",inline"`
-	OrganizationName        *string               `json:"organization-name,omitempty"`
-	DeploymentName          *string               `json:"deployment-name,omitempty"`
+	nddov1.OdaInfo          `json:",inline"`
 	RegistryName            *string               `json:"registry-name,omitempty"`
 	Registry                *NddrRegistryRegistry `json:"registry,omitempty"`
 }
@@ -62,8 +63,9 @@ type RegistryStatus struct {
 // +kubebuilder:subresource:status
 // +kubebuilder:printcolumn:name="SYNC",type="string",JSONPath=".status.conditions[?(@.kind=='Synced')].status"
 // +kubebuilder:printcolumn:name="STATUS",type="string",JSONPath=".status.conditions[?(@.kind=='Ready')].status"
-// +kubebuilder:printcolumn:name="ORG",type="string",JSONPath=".status.organization-name"
-// +kubebuilder:printcolumn:name="DEPL",type="string",JSONPath=".status.deployment-name"
+// +kubebuilder:printcolumn:name="ORG",type="string",JSONPath=".status.oda[?(@.key=='organization')].value"
+// +kubebuilder:printcolumn:name="DEP",type="string",JSONPath=".status.oda[?(@.key=='deployment')].value"
+// +kubebuilder:printcolumn:name="AZ",type="string",JSONPath=".status.oda[?(@.key=='availability-zone')].value"
 // +kubebuilder:printcolumn:name="REGISTRY",type="string",JSONPath=".status.registry-name"
 // +kubebuilder:printcolumn:name="ALLOCATED",type="string",JSONPath=".status.registry.state.allocated",description="allocated network-instances"
 // +kubebuilder:printcolumn:name="AVAILABLE",type="string",JSONPath=".status.registry.state.available",description="available network-instances"

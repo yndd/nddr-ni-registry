@@ -1,9 +1,12 @@
 apiVersion: ni.nddr.yndd.io/v1alpha1
 kind: Registry
 metadata:
-  name: nokia.default
+  name: nokia
   namespace: default
 spec:
+  oda:
+  - key: organization
+    value: nokia
   registry:
     description: default Network Instance pool
     size: 10000

@@ -32,7 +32,7 @@ func WithClient(c client.Client) Option {
 }
 
 /*
-func WithNewResourceFn(f func() niregv1alpha1.Rg) Option {
+func WithNewResourceFn(f func() niv1alpha1.Rg) Option {
 	return func(r Handler) {
 		r.WithNewResourceFn(f)
 	}
@@ -43,7 +43,7 @@ type Handler interface {
 	WithLogger(log logging.Logger)
 	//WithPool(pool map[string]hash.HashTable)
 	WithClient(a client.Client)
-	//WithNewResourceFn(f func() niregv1alpha1.Rg)
+	//WithNewResourceFn(f func() niv1alpha1.Rg)
 	Init(string, uint32)
 	Delete(string)
 	GetAllocated(string) (uint32, []*string)

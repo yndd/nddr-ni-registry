@@ -7,7 +7,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/yndd/ndd-runtime/pkg/logging"
-	niregv1alpha1 "github.com/yndd/nddr-ni-registry/apis/ni/v1alpha1"
+	niv1alpha1 "github.com/yndd/nddr-ni-registry/apis/ni/v1alpha1"
 	"github.com/yndd/nddr-ni-registry/internal/hash"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/types"
@@ -15,7 +15,7 @@ import (
 )
 
 func New(opts ...Option) (Handler, error) {
-	rgfn := func() niregv1alpha1.Rg { return &niregv1alpha1.Registry{} }
+	rgfn := func() niv1alpha1.Rg { return &niv1alpha1.Registry{} }
 	s := &handler{
 		pool:        make(map[string]hash.HashTable),
 		speedy:      make(map[string]int),
@@ -41,13 +41,13 @@ func (r *handler) WithClient(c client.Client) {
 	r.client = c
 }
 
-//func (r *handler) WithNewResourceFn(f func() niregv1alpha1.Rg) {
+//func (r *handler) WithNewResourceFn(f func() niv1alpha1.Rg) {
 //	r.newRegistry = f
 //}
 
 type RegisterInfo struct {
 	Namespace    string
-	RegisterName string
+	Name         string
 	RegistryName string
 	CrName       string
 	Selector     map[string]string
@@ -59,7 +59,7 @@ type handler struct {
 	// kubernetes
 	client client.Client
 
-	newRegistry func() niregv1alpha1.Rg
+	newRegistry func() niv1alpha1.Rg
 	poolMutex   sync.Mutex
 	pool        map[string]hash.HashTable
 	speedyMutex sync.Mutex
@@ -129,11 +129,11 @@ func (r *handler) Register(ctx context.Context, info *RegisterInfo) (*uint32, er
 	if err != nil {
 		return nil, err
 	}
-	registerName := info.RegisterName
+	requestName := info.Name
 	sourceTag := info.SourceTag
 
 	r.log.Debug("pool insert", "niName", niName)
-	index := pool.Insert(*niName, registerName, sourceTag)
+	index := pool.Insert(*niName, requestName, sourceTag)
 	r.log.Debug("pool inserted", "niName", niName, "index", index)
 
 	return &index, nil
@@ -145,11 +145,11 @@ func (r *handler) DeRegister(ctx context.Context, info *RegisterInfo) error {
 	if err != nil {
 		return err
 	}
-	registerName := info.RegisterName
+	requestName := info.Name
 	sourceTag := info.SourceTag
 
 	r.log.Debug("pool delete", "niName", niName)
-	pool.Delete(*niName, registerName, sourceTag)
+	pool.Delete(*niName, requestName, sourceTag)
 	r.log.Debug("pool deleted", "niName", niName)
 
 	return nil
@@ -172,7 +172,7 @@ func (r *handler) validateRegister(ctx context.Context, info *RegisterInfo) (has
 	}
 
 	// check is registry is ready
-	if registry.GetCondition(niregv1alpha1.ConditionKindReady).Status != corev1.ConditionTrue {
+	if registry.GetCondition(niv1alpha1.ConditionKindReady).Status != corev1.ConditionTrue {
 		r.log.Debug("Registry not ready")
 		return nil, nil, errors.New("Registry not ready")
 	}

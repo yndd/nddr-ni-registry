@@ -27,7 +27,7 @@ import (
 
 	//ndrv1 "github.com/yndd/ndd-core/apis/dvr/v1"
 	//nipoolv1alpha1 "github.com/yndd/nddr-ni-pool/apis/nipool/v1alpha1"
-	niregv1alpha1 "github.com/yndd/nddr-ni-registry/apis/ni/v1alpha1"
+	niv1alpha1 "github.com/yndd/nddr-ni-registry/apis/ni/v1alpha1"
 	//apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
 	//+kubebuilder:scaffold:imports
 )
@@ -58,6 +58,6 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&debug, "debug", "d", false, "enable debug mode")
 
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
-	utilruntime.Must(niregv1alpha1.AddToScheme(scheme))
+	utilruntime.Must(niv1alpha1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }

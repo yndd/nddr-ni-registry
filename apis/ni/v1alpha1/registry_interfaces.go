@@ -20,7 +20,6 @@ import (
 
 	nddv1 "github.com/yndd/ndd-runtime/apis/common/v1"
 	"github.com/yndd/ndd-runtime/pkg/utils"
-	"github.com/yndd/nddo-runtime/pkg/odr"
 	"github.com/yndd/nddo-runtime/pkg/resource"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -50,8 +49,11 @@ type Rg interface {
 	resource.Object
 	resource.Conditioned
 
-	GetOrganizationName() string
-	GetDeploymentName() string
+	GetCondition(ct nddv1.ConditionKind) nddv1.Condition
+	SetConditions(c ...nddv1.Condition)
+	GetOrganization() string
+	GetDeployment() string
+	GetAvailabilityZone() string
 	GetRegistryName() string
 	GetAllocationStrategy() string
 	GetSize() uint32
@@ -59,8 +61,9 @@ type Rg interface {
 	GetAllocatedNis() []*string
 	InitializeResource() error
 	SetStatus(uint32, []*string)
-	SetOrganizationName(string)
-	SetDeploymentName(string)
+	SetOrganization(string)
+	SetDeployment(string)
+	SetAvailabilityZone(s string)
 	SetRegistryName(string)
 }
 
@@ -74,56 +77,60 @@ func (x *Registry) SetConditions(c ...nddv1.Condition) {
 	x.Status.SetConditions(c...)
 }
 
-func (x *Registry) GetOrganizationName() string {
-	return odr.GetOrganizationName(x.GetNamespace())
+func (x *Registry) GetOrganization() string {
+	return x.Spec.GetOrganization()
 }
 
-func (x *Registry) GetDeploymentName() string {
-	return odr.GetDeploymentName(x.GetNamespace())
+func (x *Registry) GetDeployment() string {
+	return x.Spec.GetDeployment()
+}
+
+func (x *Registry) GetAvailabilityZone() string {
+	return x.Spec.GetAvailabilityZone()
 }
 
 func (x *Registry) GetRegistryName() string {
 	return x.GetName()
 }
 
-func (n *Registry) GetAllocationStrategy() string {
-	if reflect.ValueOf(n.Spec.Registry.AllocationStrategy).IsZero() {
+func (x *Registry) GetAllocationStrategy() string {
+	if reflect.ValueOf(x.Spec.Registry.AllocationStrategy).IsZero() {
 		return ""
 	}
-	return *n.Spec.Registry.AllocationStrategy
+	return *x.Spec.Registry.AllocationStrategy
 }
 
-func (n *Registry) GetSize() uint32 {
-	if reflect.ValueOf(n.Spec.Registry.Size).IsZero() {
+func (x *Registry) GetSize() uint32 {
+	if reflect.ValueOf(x.Spec.Registry.Size).IsZero() {
 		return 0
 	}
-	return *n.Spec.Registry.Size
+	return *x.Spec.Registry.Size
 }
 
-func (n *Registry) GetAllocations() uint32 {
-	if n.Status.Registry != nil && n.Status.Registry.State != nil {
-		return *n.Status.Registry.State.Allocated
+func (x *Registry) GetAllocations() uint32 {
+	if x.Status.Registry != nil && x.Status.Registry.State != nil {
+		return *x.Status.Registry.State.Allocated
 	}
 	return 0
 }
 
-func (n *Registry) GetAllocatedNis() []*string {
-	return n.Status.Registry.State.Used
+func (x *Registry) GetAllocatedNis() []*string {
+	return x.Status.Registry.State.Used
 }
 
-func (n *Registry) InitializeResource() error {
+func (x *Registry) InitializeResource() error {
 
 	// check if the pool was already initialized
-	if n.Status.Registry != nil && n.Status.Registry.State != nil {
+	if x.Status.Registry != nil && x.Status.Registry.State != nil {
 		// pool was already initialiazed
 		return nil
 	}
-	size := int(*n.Spec.Registry.Size)
+	size := int(*x.Spec.Registry.Size)
 
-	n.Status.Registry = &NddrRegistryRegistry{
-		Size:        n.Spec.Registry.Size,
-		AdminState:  n.Spec.Registry.AdminState,
-		Description: n.Spec.Registry.Description,
+	x.Status.Registry = &NddrRegistryRegistry{
+		Size:        x.Spec.Registry.Size,
+		AdminState:  x.Spec.Registry.AdminState,
+		Description: x.Spec.Registry.Description,
 		State: &NddrRegistryRegistryState{
 			Total:     utils.Uint32Ptr(uint32(size)),
 			Allocated: utils.Uint32Ptr(0),
@@ -135,19 +142,23 @@ func (n *Registry) InitializeResource() error {
 
 }
 
-func (n *Registry) SetStatus(allocated uint32, used []*string) {
-	n.Status.Registry.State.Allocated = utils.Uint32Ptr(allocated)
-	n.Status.Registry.State.Available = utils.Uint32Ptr(*n.Spec.Registry.Size - allocated)
+func (x *Registry) SetStatus(allocated uint32, used []*string) {
+	x.Status.Registry.State.Allocated = utils.Uint32Ptr(allocated)
+	x.Status.Registry.State.Available = utils.Uint32Ptr(*x.Spec.Registry.Size - allocated)
 
-	n.Status.Registry.State.Used = used
+	x.Status.Registry.State.Used = used
 }
 
-func (x *Registry) SetOrganizationName(s string) {
-	x.Status.OrganizationName = &s
+func (x *Registry) SetOrganization(s string) {
+	x.Status.SetOrganization(s)
 }
 
-func (x *Registry) SetDeploymentName(s string) {
-	x.Status.DeploymentName = &s
+func (x *Registry) SetDeployment(s string) {
+	x.Status.SetDeployment(s)
+}
+
+func (x *Registry) SetAvailabilityZone(s string) {
+	x.Status.SetAvailabilityZone(s)
 }
 
 func (x *Registry) SetRegistryName(s string) {

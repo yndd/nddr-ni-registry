@@ -51,7 +51,7 @@ type server struct {
 	log     logging.Logger
 	handler handler.Handler
 
-	//newRegistry func() niregv1alpha1.Rg
+	//newRegistry func() niv1alpha1.Rg
 
 	// context
 	ctx context.Context
@@ -84,7 +84,7 @@ func (s *server) WithClient(c client.Client) {
 }
 
 /*
-func (s *server) WithNewResourceFn(f func() niregv1alpha1.Rg) {
+func (s *server) WithNewResourceFn(f func() niv1alpha1.Rg) {
 	s.newRegistry = f
 }
 */
