@@ -49,9 +49,9 @@ type NiRegister struct {
 
 // A RegisterSpec defines the desired state of a Register.
 type RegisterSpec struct {
-	nddov1.OdaInfo `json:",inline"`
-	RegistryName   *string     `json:"registry-name"`
-	Register       *NiRegister `json:"register,omitempty"`
+	//nddov1.OdaInfo `json:",inline"`
+	//RegistryName   *string     `json:"registry-name"`
+	Register *NiRegister `json:"register,omitempty"`
 }
 
 // A RegisterStatus represents the observed state of a Register.

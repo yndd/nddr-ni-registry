@@ -4,7 +4,6 @@ metadata:
   name: register1
   namespace: default
 spec:
-  registry-name: nokia
   register:
     selector:
     - key: name

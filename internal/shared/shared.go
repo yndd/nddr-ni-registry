@@ -20,7 +20,7 @@ import (
 
 	"github.com/yndd/ndd-runtime/pkg/logging"
 	"github.com/yndd/nddr-ni-registry/internal/handler"
-	"github.com/yndd/nddr-organization/pkg/registry"
+	"github.com/yndd/nddr-org-registry/pkg/registry"
 )
 
 type NddControllerOptions struct {

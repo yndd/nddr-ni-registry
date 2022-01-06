@@ -20,6 +20,7 @@ import (
 	"reflect"
 
 	nddv1 "github.com/yndd/ndd-runtime/apis/common/v1"
+	"github.com/yndd/nddo-runtime/pkg/odns"
 	"github.com/yndd/nddo-runtime/pkg/resource"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -76,22 +77,19 @@ func (x *Register) SetConditions(c ...nddv1.Condition) {
 }
 
 func (x *Register) GetOrganization() string {
-	return x.Spec.GetOrganization()
+	return odns.Name2OdnsRegistry(x.GetName()).GetOrganization()
 }
 
 func (x *Register) GetDeployment() string {
-	return x.Spec.GetDeployment()
+	return odns.Name2OdnsRegistry(x.GetName()).GetDeployment()
 }
 
 func (x *Register) GetAvailabilityZone() string {
-	return x.Spec.GetAvailabilityZone()
+	return odns.Name2OdnsRegistry(x.GetName()).GetAvailabilityZone()
 }
 
 func (x *Register) GetRegistryName() string {
-	if reflect.ValueOf(x.Spec.RegistryName).IsZero() {
-		return ""
-	}
-	return *x.Spec.RegistryName
+	return odns.Name2OdnsRegistry(x.GetName()).GetRegistryName()
 }
 
 func (n *Register) GetSourceTag() map[string]string {
